@@ -1,0 +1,73 @@
+<html>
+<head>
+</head>
+<body>
+    <div id="container" style="position: relative"></div>
+
+    <script src="dojo/dojo.js"></script>
+    <script>
+
+        require(
+            [ "dojo/query", "dojo/dom-construct", "dojo/dom-attr", "dojo/dom-style", "Maze" ],
+            function(query, domConstruct, domAttr, domStyle, Maze) {
+                var horizontalCells = 100,
+                    verticalCells = 40,
+                    cellPixels = 10,
+                    width = horizontalCells * cellPixels,
+                    height = verticalCells * cellPixels,
+                    canvas = domConstruct.create("canvas", {
+                        width: width,
+                        height: height
+                    }),
+                    pathCanvas = domConstruct.create("canvas", {
+                        width: width,
+                        height: height
+                    }),
+                    container = query("#container")[0];
+
+                domStyle.set(pathCanvas, {
+                    "position": "absolute",
+                    "top": 0,
+                    "left": 0,
+                    "zIndex": -1
+                });
+
+                container.appendChild(pathCanvas);
+                container.appendChild(canvas);
+
+                var m = new Maze({ wide: horizontalCells, high: verticalCells });
+                var ctx = canvas.getContext('2d');
+
+                ctx.lineWidth = 1;
+                ctx.fillStyle = "blue";
+                ctx.strokeRect(0, 0, horizontalCells * cellPixels, verticalCells * cellPixels);
+                ctx.beginPath();
+                var row, column, x, y;
+                for(row = 0; row < m.high; row++) {
+                    for(column = 0; column < m.wide; column++) {
+                        x = column * cellPixels;
+                        y = row * cellPixels;
+                        if(!m.canGoDown(row, column)) {
+                            ctx.moveTo(x, y + cellPixels);
+                            ctx.lineTo(x + cellPixels, y + cellPixels);
+                        }
+                        if(!m.canGoRight(row, column)) {
+                            ctx.moveTo(x + cellPixels, y);
+                            ctx.lineTo(x + cellPixels, y + cellPixels);
+                        }
+                    }
+                }
+                ctx.stroke();
+                ctx.closePath();
+
+                var pctx = pathCanvas.getContext('2d');
+                pctx.fillStyle = "lightblue";
+                pctx.fillRect(0, 0, width, height);
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>
