@@ -61,9 +61,56 @@
                 ctx.closePath();
 
                 var pctx = pathCanvas.getContext('2d');
-                pctx.fillStyle = "lightblue";
-                pctx.fillRect(0, 0, width, height);
+                
+                var visitedCells = [ ]
+                for(var i = 0; i < verticalCells; i++) { visitedCells[i] = [] }
 
+                function getNextCell(row, column) {
+                    var accessibleNeighbors = m.getAccessibleNeighbors(row, column);
+                    var options = accessibleNeighbors.reduce(function(unvisitedNeighbors, neighbor) {
+                        if(!visitedCells[neighbor.row][neighbor.column]) unvisitedNeighbors.push(neighbor)
+                        return unvisitedNeighbors
+                    }, [])
+                                       
+                    return options.length === 0
+                        ? null
+                        : options[Math.floor(Math.random() * options.length)]
+                }
+
+                var cellStack = [ { row: 0, column: 0 } ];
+                var intervalId = setInterval(function() {
+                    try {
+                        if(cellStack.length === 0) {
+                            clearInterval(intervalId);
+                        } else {
+                            var c = cellStack[cellStack.length - 1];
+
+                            if(visitedCells[c.row][c.column]) {
+                                pctx.fillStyle = "orange";
+                            } else {
+                                visitedCells[c.row][c.column] = true;
+                                pctx.fillStyle = "lightblue";
+                            }
+                            pctx.fillRect(c.column * cellPixels, c.row * cellPixels, cellPixels, cellPixels);
+
+                            if(c.row === verticalCells - 1 && c.column === horizontalCells - 1) {
+                                clearInterval(intervalId);
+                                return;
+                            }
+                            var next = getNextCell(c.row, c.column);
+                            if(next === null) {
+                                pctx.fillStyle = "orange";
+                                pctx.fillRect(c.column * cellPixels, c.row * cellPixels, cellPixels, cellPixels);
+                                cellStack.pop();
+                            } else {
+                                cellStack.push(next);
+                            }
+                        }
+                    } catch (e) {
+                        clearInterval(intervalId);
+                        throw e;
+                    }
+                }, 0);
             }
         );
 
