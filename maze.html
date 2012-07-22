@@ -2,90 +2,19 @@
 <head>
 </head>
 <body>
-    <div id="container" style="position: relative"></div>
 
     <script data-dojo-config="async: 1, isDebug: 1" src="dojo/dojo.js"></script>
     <script>
 
-        require([
-            "dojo/query",
-            "dojo/dom-construct",
-            "dojo/dom-style",
-            "dojo/_base/array",
-            "Maze",
-            "Solver"
-        ], function(query, domConstruct, domStyle, arrayUtil, Maze, Solver) {
-            var maze = new Maze({ numRows: 40, numColumns: 40 }),
-                cellPixels = 10,
-                wallCanvas = domConstruct.create("canvas", {
-                    width: maze.numColumns * cellPixels,
-                    height: maze.numRows * cellPixels
-                }),
-                trailCanvas = domConstruct.create("canvas", {
-                    width: wallCanvas.width,
-                    height: wallCanvas.height
-                }),
-                container = query("#container")[0];
-
-            domStyle.set(trailCanvas, {
-                "position": "absolute",
-                "top": 0,
-                "left": 0,
-                "zIndex": -1
+        require([ "MazeWidget" ], function(MazeWidget) {
+            var maze = new MazeWidget({
+                numRows: 40,
+                numColumns: 60,
+                cellPixels: 5
             });
-
-            container.appendChild(trailCanvas);
-            container.appendChild(wallCanvas);
-
-            // Wall 2d Context
-            var wc = wallCanvas.getContext('2d');
-
-            wc.lineWidth = 1;
-            wc.fillStyle = "blue";
-            wc.strokeRect(0, 0, maze.numColumns * cellPixels, maze.numRows * cellPixels);
-            wc.beginPath();
-            var row, column, x, y;
-            for(row = 0; row < maze.numRows; row++) {
-                for(column = 0; column < maze.numColumns; column++) {
-                    x = column * cellPixels;
-                    y = row * cellPixels;
-                    if(!maze.canGoDown(row, column)) {
-                        wc.moveTo(x, y + cellPixels);
-                        wc.lineTo(x + cellPixels, y + cellPixels);
-                    }
-                    if(!maze.canGoRight(row, column)) {
-                        wc.moveTo(x + cellPixels, y);
-                        wc.lineTo(x + cellPixels, y + cellPixels);
-                    }
-                }
-            }
-            wc.stroke();
-            wc.closePath();
-
-            // Solution Trail 2d Context
-            var tc = trailCanvas.getContext('2d');
-            function drawSquare(location, color) {
-                var x = location.column * cellPixels,
-                    y = location.row * cellPixels;
-                tc.fillStyle = color;
-                tc.fillRect(x, y, cellPixels, cellPixels);
-            }
-
-            var solver = new Solver(maze);
-            var intervalId = null;
-            solver.on("visited", function(location) { drawSquare(location, "lightgreen"); });
-            solver.on("revisited", function(location) { drawSquare(location, "lightblue"); });
-            solver.on("deadEnd", function(location) { drawSquare(location, "orange"); });
-            solver.on("solved", function() { clearInterval(intervalId); });
-
-            intervalId = setInterval(function() {
-                try {
-                    solver.step();
-                } catch (e) {
-                    clearInterval(intervalId);
-                    throw e;
-                }
-            }, 1);
+            maze.placeAt(document.body);
+            maze.startup();
+            maze.solve();
         });
 
     </script>
