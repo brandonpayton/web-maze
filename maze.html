@@ -9,8 +9,8 @@
         require([ "MazeWidget" ], function(MazeWidget) {
             var maze = new MazeWidget({
                 numRows: 40,
-                numColumns: 60,
-                cellPixels: 5
+                numColumns: 40,
+                pixelsPerCell: 10
             });
             maze.placeAt(document.body);
             maze.startup();

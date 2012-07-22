@@ -3,11 +3,11 @@ define([
     "dojo/_base/lang",
     "dojo/dom-construct",
     "dijit/_WidgetBase",
-    "Maze",
-    "Solver"
+    "./Maze",
+    "./Solver"
 ], function(declare, lang, domConstruct, _WidgetBase, Maze, Solver) {
     return declare([ _WidgetBase ], {
-        cellPixels: 10,
+        pixelsPerCell: 10,
         _maze: null,
         _wallCanvas: null,
         _solutionCanvas: null,
@@ -17,12 +17,12 @@ define([
         buildRendering: function(args) {
             var maze = this._maze,
                 container = domConstruct.create("div", { style: "position: relative" }),
-                cellPixels = this.cellPixels;
+                pixelsPerCell = this.pixelsPerCell;
 
             this.domNode = container;
             this._wallCanvas = domConstruct.create("canvas", {
-                width: maze.numColumns * this.cellPixels,
-                height: maze.numRows * this.cellPixels
+                width: maze.numColumns * this.pixelsPerCell,
+                height: maze.numRows * this.pixelsPerCell
             });
             this._solutionCanvas = domConstruct.create("canvas", {
                 width: this._wallCanvas.width,
@@ -32,7 +32,7 @@ define([
             container.appendChild(this._solutionCanvas);
             container.appendChild(this._wallCanvas);
             
-            this._drawWalls();
+            this._drawStructure();
         },
         solve: function(args) {
             args = lang.delegate({
@@ -43,18 +43,17 @@ define([
 
             // Solution Trail 2d Context
             var sc = this._solutionCanvas.getContext('2d');
-            var cellPixels = this.cellPixels;
+            var pixelsPerCell = this.pixelsPerCell;
             function drawSquare(location, color) {
-                var x = location.column * cellPixels,
-                    y = location.row * cellPixels;
+                var x = location.column * pixelsPerCell,
+                    y = location.row * pixelsPerCell;
                 sc.fillStyle = color;
-                sc.fillRect(x, y, cellPixels, cellPixels);
+                sc.fillRect(x, y, pixelsPerCell, pixelsPerCell);
             }
 
             var solver = new Solver(maze);
             var intervalId = null;
-            solver.on("visited", function(location) { drawSquare(location, "lightgreen"); });
-            solver.on("revisited", function(location) { drawSquare(location, "lightblue"); });
+            solver.on("visited", function(location) { drawSquare(location, "lightblue"); });
             solver.on("deadEnd", function(location) { drawSquare(location, "orange"); });
             solver.on("solved", function() { clearInterval(intervalId); });
 
@@ -67,29 +66,39 @@ define([
                 }
             }, args.stepInterval);
         },
-        _drawWalls: function() {
-            var maze = this._maze;
-            var cellPixels = this.cellPixels;
+        _drawStructure: function() {
+            var maze = this._maze,
+                pixelsPerCell = this.pixelsPerCell,
+                wallCanvas = this._wallCanvas;
 
             // Wall 2d Context
-            var wc = this._wallCanvas.getContext('2d');
+            var wc = wallCanvas.getContext('2d');
 
+            // Clean slate
+            wc.clearRect(0, 0, wallCanvas.width, wallCanvas.height);
+
+            wc.strokeStyle = "black";
             wc.lineWidth = 1;
-            wc.fillStyle = "blue";
-            wc.strokeRect(0, 0, maze.numColumns * cellPixels, maze.numRows * cellPixels);
             wc.beginPath();
+
+            // Draw left and top boundaries
+            wc.moveTo(0, wallCanvas.height);
+            wc.lineTo(0, 0);
+            wc.lineTo(wallCanvas.width, 0);
+
+            // Draw walls, including bottom and right boundaries.
             var row, column, x, y;
             for(row = 0; row < maze.numRows; row++) {
                 for(column = 0; column < maze.numColumns; column++) {
-                    x = column * cellPixels;
-                    y = row * cellPixels;
+                    x = column * pixelsPerCell;
+                    y = row * pixelsPerCell;
                     if(!maze.canGoDown(row, column)) {
-                        wc.moveTo(x, y + cellPixels);
-                        wc.lineTo(x + cellPixels, y + cellPixels);
+                        wc.moveTo(x, y + pixelsPerCell);
+                        wc.lineTo(x + pixelsPerCell, y + pixelsPerCell);
                     }
                     if(!maze.canGoRight(row, column)) {
-                        wc.moveTo(x + cellPixels, y);
-                        wc.lineTo(x + cellPixels, y + cellPixels);
+                        wc.moveTo(x + pixelsPerCell, y);
+                        wc.lineTo(x + pixelsPerCell, y + pixelsPerCell);
                     }
                 }
             }

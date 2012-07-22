@@ -17,14 +17,10 @@ define([
         step: function(maze) {
             var maze = this._maze;
             var cellStack = this._cellStack;
-            var c = cellStack[cellStack.length - 1];
 
-            if(this._visitedCells[c.row][c.column]) {
-                this.emit("revisited", c);
-            } else {
-                this._visitedCells[c.row][c.column] = true;
-                this.emit("visited", c);
-            }
+            var c = cellStack[cellStack.length - 1];
+            this._visitedCells[c.row][c.column] = true;
+            this.emit("visited", c);
 
             if(c.row === maze.endLocation.row && c.column === maze.endLocation.column) {
                 this.emit("solved");
