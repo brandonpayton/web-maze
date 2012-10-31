@@ -1,3 +1,9 @@
+/* Copyright (c) 2012, Brandon Payton
+ * All rights reserved.
+ *
+ * This work is licensed under the BSD 3-Clause License:
+ * http://opensource.org/licenses/BSD-3-Clause
+ * */
 define([
     "dojo/_base/declare",
     "dojo/_base/lang",
@@ -36,12 +42,12 @@ define([
         _getNextCell: function(row, column) {
             var accessibleNeighbors = this._maze.getAccessibleNeighbors(row, column);
             var options = accessibleNeighbors.filter(lang.hitch(this, function(neighbor) {
-                return !this._visitedCells[neighbor.row][neighbor.column]
+                return !this._visitedCells[neighbor.row][neighbor.column];
             }));
                                
             return options.length === 0
                 ? null
-                : options[Math.floor(Math.random() * options.length)]
+                : options[Math.floor(Math.random() * options.length)];
         }
 
     });

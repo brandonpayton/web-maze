@@ -1,3 +1,9 @@
+/* Copyright (c) 2012, Brandon Payton
+ * All rights reserved.
+ *
+ * This work is licensed under the BSD 3-Clause License:
+ * http://opensource.org/licenses/BSD-3-Clause
+ * */
 define([
     "dojo/_base/declare",
     "dojo/_base/lang",

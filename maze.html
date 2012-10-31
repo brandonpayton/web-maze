@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html>
 <head>
+    <title>Maze</title>
 </head>
 <body>
 
@@ -8,9 +10,9 @@
 
         require([ "MazeWidget" ], function(MazeWidget) {
             var maze = new MazeWidget({
-                numRows: 40,
-                numColumns: 40,
-                pixelsPerCell: 10
+                numRows: 60,
+                numColumns: 80,
+                pixelsPerCell: 5
             });
             maze.placeAt(document.body);
             maze.startup();
