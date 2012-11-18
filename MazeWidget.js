@@ -14,9 +14,15 @@ define([
 ], function(declare, lang, domConstruct, _WidgetBase, Maze, Solver) {
     return declare([ _WidgetBase ], {
         pixelsPerCell: 10,
+        wallWidth: 1,
+        wallColor: "black",
+        pathColor: "lightblue",
+        pathRetraceColor: "orange",
+
         _maze: null,
         _wallCanvas: null,
         _solutionCanvas: null,
+
         constructor: function(args) {
             this._maze = new Maze({ numRows: args.numRows, numColumns: args.numColumns });
         }, 
@@ -59,16 +65,15 @@ define([
 
             var solver = new Solver(maze);
             var intervalId = null;
-            solver.on("visited", function(location) { drawSquare(location, "lightblue"); });
-            solver.on("deadEnd", function(location) { drawSquare(location, "orange"); });
-            solver.on("solved", function() { clearInterval(intervalId); });
+            var self = this;
+            solver.on("visited", function(location) { drawSquare(location, self.pathColor); });
+            solver.on("deadEnd", function(location) { drawSquare(location, self.pathRetraceColor); });
+            solver.on("solved", function() { /* Currently, do nothing.Currently, do nothing. */ });
 
-            intervalId = setInterval(function() {
-                try {
-                    solver.step();
-                } catch (e) {
-                    clearInterval(intervalId);
-                    throw e;
+            setTimeout(function step() {
+                solver.step();
+                if(!solver.solved) {
+                    setTimeout(step, args.stepInterval);
                 }
             }, args.stepInterval);
         },
@@ -83,8 +88,8 @@ define([
             // Clean slate
             wc.clearRect(0, 0, wallCanvas.width, wallCanvas.height);
 
-            wc.strokeStyle = "black";
-            wc.lineWidth = 1;
+            wc.strokeStyle = this.wallColor;
+            wc.lineWidth = this.wallWidth;
             wc.beginPath();
 
             // Draw left and top boundaries

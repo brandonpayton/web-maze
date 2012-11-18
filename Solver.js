@@ -13,6 +13,7 @@ define([
         _maze: null,
         _cellStack: [ ],
         _visitedCells: null,
+        solved: false,
         constructor: function(maze) {
             this._maze = maze;
             this._cellStack.push(maze.startLocation);
@@ -20,7 +21,7 @@ define([
             this._visitedCells = [ ];
             for(var i = 0; i < maze.numRows; i++) { this._visitedCells[i] = []; }
         },
-        step: function(maze) {
+        step: function() {
             var maze = this._maze;
             var cellStack = this._cellStack;
 
@@ -29,6 +30,7 @@ define([
             this.emit("visited", c);
 
             if(c.row === maze.endLocation.row && c.column === maze.endLocation.column) {
+                this.solved = true;
                 this.emit("solved");
             } else {
                 var next = this._getNextCell(c.row, c.column);
@@ -45,10 +47,7 @@ define([
                 return !this._visitedCells[neighbor.row][neighbor.column];
             }));
                                
-            return options.length === 0
-                ? null
-                : options[Math.floor(Math.random() * options.length)];
+            return options.length === 0 ? null : options[Math.floor(Math.random() * options.length)];
         }
-
     });
 });

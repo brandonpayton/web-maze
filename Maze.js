@@ -29,7 +29,7 @@ define([
                 }
             }
             
-            var self = this
+            var self = this;
             function moveToNextUnvisitedCell(row, column) {
                 var neighbors = self.getNeighbors(row, column);
                 var options = arrayUtil.filter(neighbors, function(neighbor) {
