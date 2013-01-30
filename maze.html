@@ -5,7 +5,19 @@
 </head>
 <body>
 
-    <script data-dojo-config="async: 1, isDebug: 1" src="../dojo/dojo.js"></script>
+    <script>
+        var dojoConfig = {
+            baseUrl: "",
+            async: 1,
+            isDebug: 1,
+            packages: [
+                "dojo",
+                "dijit",
+                "maze"
+            ]
+        }
+    </script>
+    <script src="dojo/dojo.js"></script>
     <script>
 
         require([ "maze/MazeWidget" ], function(MazeWidget) {
